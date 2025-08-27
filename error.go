@@ -3,16 +3,14 @@ package log
 import (
 	"database/sql"
 
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
+	database "github.com/Carry-Rao/go-db"
 )
 
 var errorDB *sql.DB
 
-func initErrorDBMysql(dsn string) {
+func initErrorDB(typ string, dsn string) {
 	var err error
-	errorDB, err = sql.Open("mysql", dsn)
+	errorDB, err = database.Open(typ, dsn)
 	if err != nil {
 		panic(err)
 	}
@@ -20,37 +18,8 @@ func initErrorDBMysql(dsn string) {
 	if err != nil {
 		panic(err)
 	}
-	initErrorDB()
-}
 
-func initErrorDBSqlite(path string) {
-	var err error
-	errorDB, err = sql.Open("sqlite3", path)
-	if err != nil {
-		panic(err)
-	}
-	err = errorDB.Ping()
-	if err != nil {
-		panic(err)
-	}
-	initErrorDB()
-}
-
-func initErrorDBPostgres(dsn string) {
-	var err error
-	errorDB, err = sql.Open("postgres", dsn)
-	if err != nil {
-		panic(err)
-	}
-	err = errorDB.Ping()
-	if err != nil {
-		panic(err)
-	}
-	initErrorDB()
-}
-
-func initErrorDB() {
-	_, err := errorDB.Exec(`
+	_, err = errorDB.Exec(`
 		CREATE TABLE IF NOT EXISTS error (
 			time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			message TEXT NOT NULL,
@@ -65,8 +34,7 @@ func initErrorDB() {
 			time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			url TEXT NOT NULL,
 			method TEXT NOT NULL,
-			status_code INT NOT NULL,
-			header TEXT NOT NULL
+			status_code INT NOT NULL
 		)
 	`)
 	if err != nil {

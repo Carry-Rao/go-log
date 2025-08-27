@@ -3,16 +3,14 @@ package log
 import (
 	"database/sql"
 
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
+	database "github.com/Carry-Rao/go-db"
 )
 
 var debugDB *sql.DB
 
-func initDebugDBMysql(dsn string) {
+func initDebugDB(typ string, dsn string) {
 	var err error
-	debugDB, err = sql.Open("mysql", dsn)
+	debugDB, err = database.Open(typ, dsn)
 	if err != nil {
 		panic(err)
 	}
@@ -20,37 +18,8 @@ func initDebugDBMysql(dsn string) {
 	if err != nil {
 		panic(err)
 	}
-	initDebugDB()
-}
 
-func initDebugDBSqlite(path string) {
-	var err error
-	debugDB, err = sql.Open("sqlite3", path)
-	if err != nil {
-		panic(err)
-	}
-	err = debugDB.Ping()
-	if err != nil {
-		panic(err)
-	}
-	initDebugDB()
-}
-
-func initDebugDBPostgres(dsn string) {
-	var err error
-	debugDB, err = sql.Open("postgres", dsn)
-	if err != nil {
-		panic(err)
-	}
-	err = debugDB.Ping()
-	if err != nil {
-		panic(err)
-	}
-	initDebugDB()
-}
-
-func initDebugDB() {
-	_, err := debugDB.Exec(`
+	_, err = debugDB.Exec(`
 		CREATE TABLE IF NOT EXISTS debug (
 			time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			message TEXT NOT NULL,

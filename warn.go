@@ -1,18 +1,16 @@
 package log
 
 import (
-	"database/sql"
+	database "github.com/Carry-Rao/go-db"
 
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
+	"database/sql"
 )
 
 var warnDB *sql.DB
 
-func initWarnDBMysql(dsn string) {
+func initWarnDB(typ string, dsn string) {
 	var err error
-	warnDB, err = sql.Open("mysql", dsn)
+	warnDB, err = database.Open(typ, dsn)
 	if err != nil {
 		panic(err)
 	}
@@ -20,37 +18,8 @@ func initWarnDBMysql(dsn string) {
 	if err != nil {
 		panic(err)
 	}
-	initWarnDB()
-}
 
-func initWarnDBSqlite(path string) {
-	var err error
-	warnDB, err = sql.Open("sqlite3", path)
-	if err != nil {
-		panic(err)
-	}
-	err = warnDB.Ping()
-	if err != nil {
-		panic(err)
-	}
-	initWarnDB()
-}
-
-func initWarnDBPostgres(dsn string) {
-	var err error
-	warnDB, err = sql.Open("postgres", dsn)
-	if err != nil {
-		panic(err)
-	}
-	err = warnDB.Ping()
-	if err != nil {
-		panic(err)
-	}
-	initWarnDB()
-}
-
-func initWarnDB() {
-	_, err := warnDB.Exec(`
+	_, err = warnDB.Exec(`
 		CREATE TABLE IF NOT EXISTS warn (
 			time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			message TEXT NOT NULL,

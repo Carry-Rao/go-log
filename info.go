@@ -3,16 +3,14 @@ package log
 import (
 	"database/sql"
 
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
+	database "github.com/Carry-Rao/go-db"
 )
 
 var infoDB *sql.DB
 
-func initInfoDBMysql(dsn string) {
+func initInfoDB(typ string, dsn string) {
 	var err error
-	infoDB, err = sql.Open("mysql", dsn)
+	infoDB, err = database.Open(typ, dsn)
 	if err != nil {
 		panic(err)
 	}
@@ -20,37 +18,8 @@ func initInfoDBMysql(dsn string) {
 	if err != nil {
 		panic(err)
 	}
-	initInfoDB()
-}
 
-func initInfoDBSqlite(path string) {
-	var err error
-	infoDB, err = sql.Open("sqlite3", path)
-	if err != nil {
-		panic(err)
-	}
-	err = infoDB.Ping()
-	if err != nil {
-		panic(err)
-	}
-	initInfoDB()
-}
-
-func initInfoDBPostgres(dsn string) {
-	var err error
-	infoDB, err = sql.Open("postgres", dsn)
-	if err != nil {
-		panic(err)
-	}
-	err = infoDB.Ping()
-	if err != nil {
-		panic(err)
-	}
-	initInfoDB()
-}
-
-func initInfoDB() {
-	_, err := infoDB.Exec(`
+	_, err = infoDB.Exec(`
 		CREATE TABLE IF NOT EXISTS info (
 			time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			message TEXT NOT NULL,
